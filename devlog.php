@@ -72,7 +72,7 @@
 
     <!-- WIDOK 2: szczegóły posta + komentarze -->
     <section id="devlog-post" class="devlog is-hidden" aria-label="Szczegóły posta">
-      <button class="back-btn" type="button" id="backToList">← Wróć</button>
+      <button class="back-btn" type="button" id="backToList"> ← WRÓĆ </button>
 
       <article class="post-card post-card--details">
         <div class="post-left">

@@ -10,15 +10,20 @@
   --frame-border: #5a2aa4;
 }
 
-*{ box-sizing: border-box; }
+*{ box-sizing: border-box;
+  font-family: inherit;
+}
 
 body{
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Pixelify Sans', sans-serif;
+  font-size: 20px;
   background: var(--bg);
-
-  /* odstęp od krawędzi ekranu */
   padding: 18px 18px 24px;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 /* HEADER */
@@ -31,7 +36,7 @@ header{
 
 /* MENU */
 .menu{
-  width: 100%;                 /* cała szerokość */
+  width: 100%;
   display: flex;
   gap: 14px;
   align-items: center;
@@ -45,7 +50,7 @@ header{
 
 /* pigułki */
 .menu a{
-  flex: 1;                     /* równe i wypełniają menu */
+  flex: 1;
   text-align: center;
 
   text-decoration: none;
@@ -57,7 +62,7 @@ header{
   font-weight: 800;
   letter-spacing: .4px;
   text-transform: uppercase;
-  font-size: 13px;
+  font-size: 18px;
 
   border: 2px solid rgba(255,255,255,.18);
   box-shadow:
@@ -76,12 +81,13 @@ main{
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 0;                  /* body już ma padding */
+  padding: 0;
+  flex: 1;
 }
 
 /* OBRAZ GRY */
 .game-container{
-  width: 100%;                 /* cała szerokość */
+  width: 100%;
   background: var(--frame-bg);
   padding: 16px;
   border-radius: 18px;
@@ -100,7 +106,6 @@ main{
   background: #000;
 }
 
-/* Na małych ekranach menu może się zawinąć */
 @media (max-width: 760px){
   body{ padding: 14px 12px 18px; }
 
@@ -111,14 +116,15 @@ main{
   }
 
   .menu a{
-    flex: 1 1 160px; /* dopasuje się i będzie czytelne */
+    flex: 1 1 160px;
   }
 }
+
 /* ABOUT (O GRZE) */
 .about{
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 40%;
   gap: 28px;
   align-items: start;
   padding-top: 10px;
@@ -126,14 +132,14 @@ main{
 
 .about-title{
   margin: 8px 0 14px;
-  font-size: 16px;
+  font-size: 30px;
   font-weight: 900;
   letter-spacing: .8px;
   text-transform: uppercase;
 }
 
 .about-text{
-  font-size: 12px;
+  font-size: 20px;
   line-height: 1.55;
 }
 
@@ -143,10 +149,16 @@ main{
 
 .about-photo-img{
   width: 100%;
-  height: 290px;
-  object-fit: cover;      /* przycina ładnie jak zdjęcie jest inne proporcje */
+  height: auto;
+  object-fit: cover;
   border-radius: 18px;
   display: block;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.about-photo-img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
 }
 
 /* Responsive */
@@ -158,7 +170,6 @@ main{
     height: 240px;
   }
 }
-
 
 
 /* DEVLOG */
@@ -187,7 +198,7 @@ main{
 
 .post-card{
   width: 100%;
-  background: rgba(74, 55, 104, .75); /* ciemny fiolet jak na screenie */
+  background: rgba(74, 55, 104, .75);
   border-radius: 22px;
   padding: 18px;
 
@@ -209,14 +220,14 @@ main{
   color: #fff;
   font-weight: 900;
   letter-spacing: .7px;
-  font-size: 13px;
+  font-size: 18px;
   text-transform: uppercase;
 }
 
 .post-body{
   margin: 0;
   color: rgba(255,255,255,.9);
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.5;
   white-space: normal;
@@ -234,7 +245,7 @@ main{
   background: #fff;
   object-fit: cover;
   display: block;
-  border: 6px solid rgba(255,255,255,.95); /* biała ramka jak na screenie */
+  border: 6px solid rgba(255,255,255,.95);
 }
 
 
@@ -255,7 +266,7 @@ main{
   border-radius: 999px;
   font-weight: 900;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 16px;
   margin-bottom: 12px;
 }
 
@@ -284,7 +295,7 @@ main{
 .comment-who{
   font-weight: 900;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 16px;
   color: rgba(255,255,255,.95);
 }
 
@@ -293,7 +304,7 @@ main{
   border-radius: 12px;
   padding: 10px 12px;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 16px;
 }
 
 .comment-form{
@@ -366,7 +377,7 @@ main{
   border-radius: 10px;
   font-weight: 900;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 16px;
   margin-bottom: 14px;
 }
 
@@ -375,16 +386,14 @@ main{
   color: rgba(255,255,255,.92);
   font-weight: 900;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: 15px;
   margin: 8px 0 6px;
 }
 
-.auth-inputrow{
-  display: grid;
-  grid-template-columns: 34px 1fr;
+.auth-inputrow {
+  display: flex;
   align-items: center;
   gap: 10px;
-
   background: rgba(255,255,255,.08);
   border-radius: 12px;
   padding: 8px 10px;
@@ -401,7 +410,8 @@ main{
   font-size: 16px;
 }
 
-.auth-input{
+.auth-input {
+  flex: 1;
   width: 100%;
   height: 34px;
   border-radius: 10px;
@@ -411,35 +421,43 @@ main{
   outline: none;
 }
 
-.auth-actions{
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-.auth-btn{
+  width: 110px;
+  height: 32px;
   background: #6f2dbd;
   color: #fff;
   border: 0;
   border-radius: 10px;
-  padding: 10px 14px;
+
+  font-family: 'Pixelify Sans', sans-serif;
   font-weight: 900;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: 15px;
   cursor: pointer;
+  text-decoration: none;
 }
 
-.auth-btn--link{
-  display: inline-block;
-  text-decoration: none;
-  margin-top: 10px;
+.auth-btn--link {
+  margin-top: 0 !important;
+}
+
+.auth-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  align-items: center;
 }
 
 .auth-smalltext{
   color: rgba(255,255,255,.92);
   font-weight: 900;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: 15px;
 }
 
 /* Footer */
@@ -455,13 +473,13 @@ main{
   margin: 0 auto;
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content: center;
   gap: 12px;
 }
 
 .site-footer__muted{
   opacity: .75;
-  font-size: 12px;
+  font-size: 16px;
   margin-top: 4px;
 }
 
@@ -495,7 +513,6 @@ select:focus-visible{
   outline-offset: 3px;
 }
 
-/* opcjonalnie: żeby focus nie był "brzydki" na myszce */
 a:focus,
 button:focus,
 input:focus,
@@ -504,3 +521,108 @@ select:focus{
   outline: none;
 }
 
+.admin h1 {
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.auth-input,
+textarea.auth-input {
+  font-family: 'Pixelify Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #000;
+}
+
+textarea.auth-input {
+  padding: 10px;
+  line-height: 1.4;
+}
+
+
+.game-credits {
+  background: #341c49;
+  color: #ffffff;
+  text-align: center;
+  padding: 40px 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+  border: 2px solid rgba(0,0,0,0.3);
+}
+
+.credits-group {
+  margin-bottom: 60px;
+}
+
+.credits-label {
+  font-size: 28px;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+}
+
+.credits-main-title {
+  font-size: 42px;
+  letter-spacing: 3px;
+  font-weight: 800;
+}
+
+.credits-divider {
+  font-size: 28px;
+  margin: 30px 0;
+  letter-spacing: 4px;
+  opacity: 0.8;
+}
+
+.credits-heading {
+  font-size: 32px;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 800;
+}
+
+.credits-subheading {
+  font-size: 28px;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+}
+
+.credits-names {
+  font-size: 28px;
+  line-height: 1.8;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 600px) {
+  .credits-main-title { font-size: 28px; }
+  .credits-heading { font-size: 22px; }
+  .credits-names, .credits-subheading, .credits-label { font-size: 18px; }
+}
+
+.credits-link {
+  color: white;
+  text-decoration: none;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.credits-link:hover {
+  color: #d7a6ff;
+  text-shadow: 0 0 10px #d7a6ff;
+}
+
+.about-game-link {
+  color: #4a3768;
+  text-decoration: underline;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.about-game-link:hover {
+  color: #4a3768;
+  text-shadow: 0 0 10px #4a3768;
+  text-decoration: none;
+}
