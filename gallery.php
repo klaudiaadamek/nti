@@ -21,15 +21,29 @@ $items = $stmt->fetchAll();
   <?php include __DIR__ . '/includes/head.php'; ?>
 
   <style>
-    .gallery-grid{
-      display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap:16px;
-      padding:16px 0;
-    }
+      .gallery-grid{
+          display:grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap:16px;
+          padding:16px 0;
+          width: 100%;
+      }
+
+      @media (max-width: 1200px) {
+          .gallery-grid { grid-template-columns: repeat(4, 1fr); }
+      }
+      @media (max-width: 900px) {
+          .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+      }
+      @media (max-width: 600px) {
+          .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (max-width: 400px) {
+          .gallery-grid { grid-template-columns: 1fr; }
+      }
     .gallery-card{
       background: rgba(255,255,255,.10);
-      border-radius: 18px;
+      border-radius: 22px;
       padding: 12px;
       border: 2px solid rgba(255,255,255,.18);
     }
@@ -80,5 +94,89 @@ $items = $stmt->fetchAll();
   </main>
 
   <?php include __DIR__ . '/includes/footer.php'; ?>
+
+  <div class="lightbox" id="lightbox">
+      <button class="lightbox-close" id="lb-close">&times;</button>
+      <div class="lightbox-controls">
+          <button class="lightbox-btn" id="lb-prev">&#10094;</button>
+          <button class="lightbox-btn" id="lb-next">&#10095;</button>
+      </div>
+      <div class="lightbox-content">
+          <img class="lightbox-img" id="lb-img" src="" alt="">
+          <div class="lightbox-caption" id="lb-caption"></div>
+      </div>
+  </div>
+
+  <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          const lightbox = document.getElementById('lightbox');
+          const lbImg = document.getElementById('lb-img');
+          const lbCaption = document.getElementById('lb-caption');
+          const btnClose = document.getElementById('lb-close');
+          const btnPrev = document.getElementById('lb-prev');
+          const btnNext = document.getElementById('lb-next');
+
+          const images = Array.from(document.querySelectorAll('.gallery-img'));
+          let currentIndex = 0;
+
+          if (images.length === 0) return;
+
+          images.forEach((img, index) => {
+              img.style.cursor = 'pointer';
+              img.addEventListener('click', () => {
+                  currentIndex = index;
+                  updateLightbox();
+                  lightbox.classList.add('active');
+              });
+          });
+
+          function updateLightbox() {
+              const imgElement = images[currentIndex];
+              lbImg.src = imgElement.src;
+              lbImg.alt = imgElement.alt;
+              lbCaption.textContent = imgElement.alt;
+          }
+
+          function closeLightbox() {
+              lightbox.classList.remove('active');
+          }
+
+          function showNext() {
+              currentIndex = (currentIndex + 1) % images.length;
+              updateLightbox();
+          }
+
+          function showPrev() {
+              currentIndex = (currentIndex - 1 + images.length) % images.length;
+              updateLightbox();
+          }
+
+          btnClose.addEventListener('click', closeLightbox);
+
+          btnNext.addEventListener('click', (e) => {
+              e.stopPropagation();
+              showNext();
+          });
+
+          btnPrev.addEventListener('click', (e) => {
+              e.stopPropagation();
+              showPrev();
+          });
+
+          lightbox.addEventListener('click', (e) => {
+              if (e.target === lightbox || e.target.classList.contains('lightbox-content')) {
+                  closeLightbox();
+              }
+          });
+
+          document.addEventListener('keydown', (e) => {
+              if (!lightbox.classList.contains('active')) return;
+
+              if (e.key === 'Escape') closeLightbox();
+              if (e.key === 'ArrowRight') showNext();
+              if (e.key === 'ArrowLeft') showPrev();
+          });
+      });
+  </script>
 </body>
 </html>

@@ -19,7 +19,7 @@ if ($method === 'GET') {
   if ($postId <= 0) jsonOut(['ok' => false, 'error' => 'Brak post_id'], 400);
 
   $stmt = $pdo->prepare("
-    SELECT c.comment_id, c.content, c.created_at, u.username
+    SELECT c.comment_id, c.content, c.created_at, u.username, c.created_at, c.likes
     FROM comments c
     JOIN users u ON u.user_id = c.user_id
     WHERE c.post_id = ?

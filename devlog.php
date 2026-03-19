@@ -100,5 +100,48 @@
 
   <script src="/nti/js/devlog.js"></script>
   <?php include __DIR__ . '/includes/footer.php'; ?>
+
+  <div class="lightbox" id="devlog-lightbox">
+      <button class="lightbox-close" id="dlb-close">&times;</button>
+      <div class="lightbox-content">
+          <img class="lightbox-img" id="dlb-img" src="" alt="">
+      </div>
+  </div>
+
+  <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          const lightbox = document.getElementById('devlog-lightbox');
+          const lbImg = document.getElementById('dlb-img');
+          const btnClose = document.getElementById('dlb-close');
+
+          document.body.addEventListener('click', (e) => {
+              if (e.target.classList.contains('post-img')) {
+                  e.stopPropagation();
+
+                  lbImg.src = e.target.src;
+                  lbImg.alt = e.target.alt;
+                  lightbox.classList.add('active');
+              }
+          });
+
+          function closeLightbox() {
+              lightbox.classList.remove('active');
+          }
+
+          btnClose.addEventListener('click', closeLightbox);
+
+          lightbox.addEventListener('click', (e) => {
+              if (e.target === lightbox || e.target.classList.contains('lightbox-content')) {
+                  closeLightbox();
+              }
+          });
+
+          document.addEventListener('keydown', (e) => {
+              if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                  closeLightbox();
+              }
+          });
+      });
+  </script>
 </body>
 </html>

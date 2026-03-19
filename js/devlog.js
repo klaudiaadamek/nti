@@ -118,7 +118,37 @@ async function renderComments() {
 
       const text = document.createElement("div");
       text.className = "comment-text";
-      text.textContent = c.content;
+
+      const textContent = document.createElement("span");
+      textContent.className = "comment-content";
+      textContent.textContent = c.content;
+
+      const metaInfo = document.createElement("div");
+      metaInfo.className = "comment-meta";
+
+      const dateSpan = document.createElement("span");
+      dateSpan.className = "comment-date";
+      dateSpan.textContent = c.created_at ? c.created_at.substring(0, 16) : "Brak daty";
+
+      const likedStr = localStorage.getItem('likedComments');
+      const likedComments = likedStr ? JSON.parse(likedStr) : [];
+
+      const currentId = String(c.id || c.comment_id);
+      const isLiked = likedComments.includes(currentId);
+
+      const likesCount = parseInt(c.likes);
+      const finalLikes = isNaN(likesCount) ? 0 : likesCount;
+
+      const likeBtn = document.createElement("button");
+      likeBtn.className = `comment-like-btn ${isLiked ? 'liked' : ''}`;
+      likeBtn.innerHTML = `♥ <span class="like-count">${finalLikes}</span>`;
+      likeBtn.dataset.id = currentId;
+
+      metaInfo.appendChild(dateSpan);
+      metaInfo.appendChild(likeBtn);
+
+      text.appendChild(textContent);
+      text.appendChild(metaInfo);
 
       row.appendChild(who);
       row.appendChild(text);
@@ -175,6 +205,53 @@ commentForm.addEventListener("submit", async (e) => {
     alert(err?.message || "Błąd połączenia z serwerem.");
   } finally {
     if (btn) btn.disabled = false;
+  }
+});
+
+commentsList.addEventListener('click', async (e) => {
+  const likeBtn = e.target.closest('.comment-like-btn');
+  if (!likeBtn) return;
+
+  if (likeBtn.disabled) return;
+  likeBtn.disabled = true;
+
+  const commentId = String(likeBtn.dataset.id);
+  const isCurrentlyLiked = likeBtn.classList.contains('liked');
+
+  const action = isCurrentlyLiked ? 'unlike' : 'like';
+
+  try {
+    const res = await fetch('api/like_comment.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment_id: commentId, action: action })
+    });
+
+    const data = await res.json();
+
+    if (data.ok) {
+      likeBtn.innerHTML = `♥ <span class="like-count">${data.likes}</span>`;
+
+      let likedComments = JSON.parse(localStorage.getItem('likedComments') || '[]');
+
+      if (action === 'like') {
+        likeBtn.classList.add('liked');
+        if (!likedComments.includes(commentId)) {
+          likedComments.push(commentId);
+        }
+      } else {
+        likeBtn.classList.remove('liked');
+        likedComments = likedComments.filter(id => id !== commentId);
+      }
+
+      localStorage.setItem('likedComments', JSON.stringify(likedComments));
+    } else {
+      alert(data.error || "Wystąpił błąd przy dawaniu polubienia.");
+    }
+  } catch (err) {
+    alert("Nie udało się połączyć z serwerem.");
+  } finally {
+    likeBtn.disabled = false;
   }
 });
 

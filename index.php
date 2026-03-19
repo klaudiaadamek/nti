@@ -59,17 +59,12 @@
 
               <div class="credits-group">
                   <div class="credits-divider">------------------------------------------------------</div>
-                  <div class="credits-heading"><strong>SPECJALNE PODZIĘKOWANIA</strong></div>
-                    <br>
-                  <div class="credits-subheading"><strong>Opieka Merytoryczna</strong></div>
+                  <div class="credits-names"><strong>Strona Internetowa</strong></div>
+                  <br>
                   <div class="credits-names">
-                      Aneta Wiśniewska<br>
-                      Rafał Szrajber
-                  </div>
-                  <br><br>
-                  <div class="credits-subheading"><strong>Główni Oficerowie ds. Inspiracji (Nasze Koty)</strong></div>
-                  <div class="credits-names">
-                      Kuro, Furby, Bazyl, Maniana, Bodzio, Kirri
+                      Klaudia Adamek<br>
+                      Emilia Szczerba <br>
+                      Hanna Sauchuk
                   </div>
               </div>
 
