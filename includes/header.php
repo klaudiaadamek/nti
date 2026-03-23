@@ -16,6 +16,7 @@
     <a class="<?= navClass('home', $active) ?>" href="<?= $BASE ?>index.php">STRONA GŁÓWNA</a>
     <a class="<?= navClass('about', $active) ?>" href="<?= $BASE ?>about.php">O GRZE</a>
     <a class="<?= navClass('gallery', $active) ?>" href="<?= $BASE ?>gallery.php">GALERIA</a>
+      <a class="<?= navClass('forum', $active) ?>" href="<?= $BASE ?>forum.php">FORUM</a>
     <a class="<?= navClass('devlog', $active) ?>" href="<?= $BASE ?>devlog.php">DEVLOG</a>
 
     <?php if (!empty($_SESSION['user_id'])): ?>

@@ -16,14 +16,16 @@ $active = 'admin';
     <section class="admin">
       <h1>Panel administratora</h1>
 
-      <ul class="admin-menu">
-        <li><a href="devlog_manage.php">Zarządzaj devlogiem</a></li>
-        <li><a href="gallery_manage.php">Zarządzaj galerią</a></li>
-        <li><a href="devlog_create.php">Dodaj post do devloga</a></li>
-        <li><a href="gallery_add.php">Dodaj zdjęcie do galerii</a></li>
-        <li><a href="users.php">Zarządzaj użytkownikami</a></li>
-        <li><a href="comments.php">Zarządzaj komentarzami</a></li>
-      </ul>
+        <ul class="admin-menu">
+            <li><a href="devlog_manage.php">Zarządzaj devlogiem</a></li>
+            <li><a href="gallery_manage.php">Zarządzaj galerią</a></li>
+            <li><a href="devlog_create.php">Dodaj post do devloga</a></li>
+            <li><a href="gallery_add.php">Dodaj zdjęcie do galerii</a></li>
+            <li><a href="users.php">Zarządzaj użytkownikami</a></li>
+            <li><a href="comments.php">Zarządzaj komentarzami (Devlog)</a></li>
+            <li><a href="forum_manage.php">Zarządzaj postami (Forum)</a></li>
+            <li><a href="forum_comments.php">Zarządzaj komentarzami (Forum)</a></li>
+        </ul>
     </section>
   </main>
 
