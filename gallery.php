@@ -69,6 +69,7 @@ $items = $stmt->fetchAll();
         <div class="lightbox-caption" id="lb-caption"></div>
     </div>
 </div>
+
 <script defer src="js/gallery.js"></script>
 </body>
 </html>

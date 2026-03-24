@@ -241,6 +241,7 @@ if (isset($_SESSION['user_id'])) {
         <img class="lightbox-img" id="flb-img" src="" alt="">
     </div>
 </div>
+
 <script defer src="js/forum.js"></script>
 </body>
 </html>
