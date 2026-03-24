@@ -10,45 +10,62 @@ $errors = [];
 $old = ['username' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $username = trim($_POST['username'] ?? '');
-  $password = $_POST['password'] ?? '';
-  $password2 = $_POST['password2'] ?? '';
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $password2 = $_POST['password2'] ?? '';
 
-  $old['username'] = $username;
+    $old['username'] = $username;
 
-  if ($username === '' || strlen($username) < 3) $errors['username'] = 'Nazwa użytkownika min. 3 znaki.';
-  if ($password === '' || strlen($password) < 8) $errors['password'] = 'Hasło min. 8 znaków.';
-  if ($password2 === '' || $password !== $password2) $errors['password2'] = 'Hasła nie są takie same.';
+    if ($username === '' || strlen($username) < 3) $errors['username'] = 'Nazwa użytkownika min. 3 znaki.';
+    if ($password === '' || strlen($password) < 8) $errors['password'] = 'Hasło min. 8 znaków.';
+    if ($password2 === '' || $password !== $password2) $errors['password2'] = 'Hasła nie są takie same.';
 
-  if (!$errors) {
-    // czy istnieje username
-    $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = ? LIMIT 1");
-    $stmt->execute([$username]);
-    $exists = $stmt->fetch();
 
-    if ($exists) {
-      $errors['general'] = 'Taka nazwa użytkownika jest już zajęta.';
+    $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
+    if (empty($recaptchaResponse)) {
+        $errors['general'] = 'Potwierdź, że nie jesteś robotem.';
     } else {
-      $hash = password_hash($password, PASSWORD_DEFAULT);
+        $secret = '6LctdZUsAAAAADE13DoHQ7xgEdJFRV--fNR8434o'; // <--- PODMIEŃ TO!
 
-      // email = NULL (bo nie używamy)
-    $stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, 'user')");
-    $stmt->execute([$username, $hash]);
+        // Wysyłamy zapytanie do API Google
+        $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secret . '&response=' . $recaptchaResponse);
+        $responseData = json_decode($verifyResponse);
 
-      $_SESSION['user_id'] = (int)$pdo->lastInsertId();
-      $_SESSION['username'] = $username;
-      $_SESSION['role'] = 'user';
-
-      header('Location: index.php');
-      exit;
+        if (!$responseData->success) {
+            $errors['general'] = 'Weryfikacja CAPTCHA nie powiodła się. Spróbuj ponownie.';
+        }
     }
-  }
+    // ---------------------------------
+
+    if (!$errors) {
+        // czy istnieje username
+        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = ? LIMIT 1");
+        $stmt->execute([$username]);
+        $exists = $stmt->fetch();
+
+        if ($exists) {
+            $errors['general'] = 'Taka nazwa użytkownika jest już zajęta.';
+        } else {
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+
+            $stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, 'user')");
+            $stmt->execute([$username, $hash]);
+
+            $_SESSION['user_id'] = (int)$pdo->lastInsertId();
+            $_SESSION['username'] = $username;
+            $_SESSION['role'] = 'user';
+
+            header('Location: index.php');
+            exit;
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
 <html lang="pl">
 <head>
   <?php include __DIR__ . '/includes/head.php'; ?>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
   <?php include __DIR__ . '/includes/header.php'; ?>
@@ -93,9 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="auth-error" role="alert" aria-live="polite"><?= htmlspecialchars($errors['password2'] ?? '') ?></div>
         </div>
 
-        <div class="auth-actions">
-          <button class="auth-btn" type="submit">ZAŁÓŻ KONTO</button>
-        </div>
+          <div class="auth-field" style="display: flex; justify-content: center; margin-bottom: 20px;">
+              <div class="g-recaptcha" data-sitekey="6LctdZUsAAAAAI7-33SBTpTjnr0dvL9_yTxe_1Sa"></div>
+          </div>
+
+          <div class="auth-actions">
+              <button class="auth-btn" type="submit">ZAŁÓŻ KONTO</button>
+          </div>
       </form>
 
       <div class="auth-card auth-card--small">

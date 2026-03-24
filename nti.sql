@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 23, 2026 at 09:26 AM
+-- Generation Time: Mar 24, 2026 at 01:42 AM
 -- Wersja serwera: 10.4.32-MariaDB
 -- Wersja PHP: 8.2.12
 
@@ -41,9 +41,19 @@ CREATE TABLE `comments` (
 --
 
 INSERT INTO `comments` (`comment_id`, `post_id`, `user_id`, `content`, `created_at`, `likes`) VALUES
-(10, 3, 1, 'supi', '2026-03-18 22:05:12', 1),
-(11, 4, 1, 'testy', '2026-03-19 19:15:02', 1),
-(12, 8, 7, 'jest git! :)', '2026-03-19 20:43:37', 1);
+(10, 3, 1, 'supi', '2026-03-18 22:05:12', 2),
+(11, 4, 1, 'testy', '2026-03-19 19:15:02', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `comment_likes`
+--
+
+CREATE TABLE `comment_likes` (
+  `user_id` int(11) NOT NULL,
+  `comment_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -55,7 +65,8 @@ CREATE TABLE `devlog_posts` (
   `devlog_id` int(11) NOT NULL,
   `title` varchar(50) NOT NULL,
   `content` text NOT NULL,
-  `image_path` varchar(255) NOT NULL,
+  `media_path` varchar(255) DEFAULT NULL,
+  `media_type` enum('image','video','none') NOT NULL DEFAULT 'none',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `author_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -64,15 +75,15 @@ CREATE TABLE `devlog_posts` (
 -- Dumping data for table `devlog_posts`
 --
 
-INSERT INTO `devlog_posts` (`devlog_id`, `title`, `content`, `image_path`, `created_at`, `author_id`) VALUES
-(3, 'pierwsze pomysły', 'wyniki naszego pierwszego spotkania na temat gry', 'images/idea.png', '2026-03-14 10:12:24', 1),
-(4, 'dodanie tutorialu', 'Trochę zmagań z tym było, ale mamy tutorial :)', 'images/4.png', '2026-03-14 10:42:17', 1),
-(5, 'mamy więcej kotków!!', 'dodaliśmy większą ilość kotków o różnych kolorach :)', 'images/3.png', '2026-03-19 20:29:54', 1),
-(6, 'dodanie mapki', 'w naszej gierce jest teraz mapka z levelami, po której można sobie chodzić :)', 'images/map.png', '2026-03-19 20:31:12', 1),
-(7, 'enemies', 'dodaliśmy więcej enemies, żeby było ciekawiej', 'images/enemy.png', '2026-03-19 20:34:35', 1),
-(8, 'level 2', 'mamy nowy level!!', 'images/level2.png', '2026-03-19 20:35:44', 1),
-(9, 'play', 'ostatnie testy przed końcową integracją :)', 'images/1.jpg', '2026-03-19 20:37:24', 1),
-(10, 'published!', 'Nasza gierka jest już dostępna na itch.io :) \r\n\r\nhttps://raspberrycola.itch.io/catnetic-storm', 'images/5.png', '2026-03-19 20:39:04', 1);
+INSERT INTO `devlog_posts` (`devlog_id`, `title`, `content`, `media_path`, `media_type`, `created_at`, `author_id`) VALUES
+(3, 'pierwsze pomysły', 'wyniki naszego pierwszego spotkania na temat gry', 'images/idea.png', 'image', '2026-03-14 10:12:24', 1),
+(4, 'dodanie tutorialu', 'Trochę zmagań z tym było, ale mamy tutorial :)', 'images/4.png', 'image', '2026-03-14 10:42:17', 1),
+(5, 'mamy więcej kotków!!', 'dodaliśmy większą ilość kotków o różnych kolorach :)', 'images/3.png', 'image', '2026-03-19 20:29:54', 1),
+(6, 'dodanie mapki', 'w naszej gierce jest teraz mapka z levelami, po której można sobie chodzić :)', 'images/map.png', 'image', '2026-03-19 20:31:12', 1),
+(7, 'enemies', 'dodaliśmy więcej enemies, żeby było ciekawiej', 'images/enemy.png', 'image', '2026-03-19 20:34:35', 1),
+(8, 'level 2', 'mamy nowy level!!', 'images/level2.png', 'image', '2026-03-19 20:35:44', 1),
+(9, 'play', 'ostatnie testy przed końcową integracją :)', 'images/1.jpg', 'image', '2026-03-19 20:37:24', 1),
+(10, 'published!', 'Nasza gierka jest już dostępna na itch.io :) \r\n\r\nhttps://raspberrycola.itch.io/catnetic-storm', 'images/5.png', 'image', '2026-03-19 20:39:04', 1);
 
 -- --------------------------------------------------------
 
@@ -94,9 +105,7 @@ CREATE TABLE `forum_comments` (
 --
 
 INSERT INTO `forum_comments` (`comment_id`, `post_id`, `user_id`, `content`, `created_at`, `likes`) VALUES
-(1, 1, 8, 'super!', '2026-03-22 17:39:15', 0),
-(2, 1, 8, 'tesci', '2026-03-22 17:44:02', 1),
-(3, 1, 8, 'heheh', '2026-03-22 17:44:05', 0);
+(4, 2, 10, 'Hejo!', '2026-03-24 00:58:42', 1);
 
 -- --------------------------------------------------------
 
@@ -114,7 +123,7 @@ CREATE TABLE `forum_comment_likes` (
 --
 
 INSERT INTO `forum_comment_likes` (`user_id`, `comment_id`) VALUES
-(8, 2);
+(10, 4);
 
 -- --------------------------------------------------------
 
@@ -137,8 +146,8 @@ CREATE TABLE `forum_posts` (
 --
 
 INSERT INTO `forum_posts` (`post_id`, `user_id`, `title`, `content`, `media_path`, `media_type`, `created_at`) VALUES
-(1, 8, 'bang chan :)', 'jedno z moich ulubionych zdjęć bang chana', 'uploads/forum_69c0f5d0ea8ca3.39988163.jpg', 'image', '2026-03-22 17:28:47'),
-(2, 1, 'teścik :)', 'zapraszamy do dodawania postów', 'uploads/forum_69c0f8cc7cdd65.56201408.png', 'image', '2026-03-23 09:24:44');
+(2, 1, 'teścik :)', 'zapraszamy do dodawania postów', 'uploads/forum_69c0f8cc7cdd65.56201408.png', 'image', '2026-03-23 09:24:44'),
+(3, 10, 'Gra jest super!', 'Gra bardzo mi się podobała a kotki są cute.', 'uploads/forum_69c1d447ba8ed1.41508387.png', 'image', '2026-03-24 01:01:11');
 
 -- --------------------------------------------------------
 
@@ -149,7 +158,8 @@ INSERT INTO `forum_posts` (`post_id`, `user_id`, `title`, `content`, `media_path
 CREATE TABLE `gallery` (
   `gallery_id` int(11) NOT NULL,
   `title` varchar(50) NOT NULL,
-  `image_path` varchar(255) NOT NULL,
+  `media_path` varchar(255) DEFAULT NULL,
+  `media_type` enum('image','video','none') NOT NULL DEFAULT 'none',
   `description` text DEFAULT NULL,
   `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `uploaded_by` int(11) NOT NULL
@@ -159,17 +169,17 @@ CREATE TABLE `gallery` (
 -- Dumping data for table `gallery`
 --
 
-INSERT INTO `gallery` (`gallery_id`, `title`, `image_path`, `description`, `uploaded_at`, `uploaded_by`) VALUES
-(1, 'pototyp', 'images/prototyp.png', 'nowa gra', '2026-03-14 11:05:19', 1),
-(3, 'pierwsza ewaluacja', 'images/pierwsza.jpg', 'zdjęcie naszej grupy z pierwszej integracji :)', '2026-03-16 22:00:48', 1),
-(4, 'testy z dwoma kotami', 'images/testy.png', NULL, '2026-03-19 19:02:03', 1),
-(5, 'pierwsze upgrades', 'images/level_up.png', NULL, '2026-03-19 19:04:39', 1),
-(6, 'pluszak', 'images/kotek.png', NULL, '2026-03-19 19:06:00', 1),
-(7, 'mini pluszak', 'images/mini_kotek.jpg', NULL, '2026-03-19 19:06:27', 1),
-(8, 'rysowanie animacji z Kirri', 'images/rysowanie.jpg', NULL, '2026-03-19 19:08:01', 1),
-(9, 'naklejki na ostanią ewaluację', 'images/naklejki.jpg', NULL, '2026-03-19 20:32:06', 1),
-(10, 'naklejka :)', 'images/cute.jpg', NULL, '2026-03-19 20:40:02', 1),
-(11, 'kotek :c', 'images/2.jpg', NULL, '2026-03-19 20:40:31', 1);
+INSERT INTO `gallery` (`gallery_id`, `title`, `media_path`, `media_type`, `description`, `uploaded_at`, `uploaded_by`) VALUES
+(1, 'pototyp', 'images/prototyp.png', 'image', 'nowa gra', '2026-03-14 11:05:19', 1),
+(3, 'pierwsza ewaluacja', 'images/pierwsza.jpg', 'image', 'zdjęcie naszej grupy z pierwszej integracji :)', '2026-03-16 22:00:48', 1),
+(4, 'testy z dwoma kotami', 'images/testy.png', 'image', NULL, '2026-03-19 19:02:03', 1),
+(5, 'pierwsze upgrades', 'images/level_up.png', 'image', NULL, '2026-03-19 19:04:39', 1),
+(6, 'pluszak', 'images/kotek.png', 'image', NULL, '2026-03-19 19:06:00', 1),
+(7, 'mini pluszak', 'images/mini_kotek.jpg', 'image', NULL, '2026-03-19 19:06:27', 1),
+(8, 'rysowanie animacji z Kirri', 'images/rysowanie.jpg', 'image', NULL, '2026-03-19 19:08:01', 1),
+(9, 'naklejki na ostanią ewaluację', 'images/naklejki.jpg', 'image', NULL, '2026-03-19 20:32:06', 1),
+(10, 'naklejka :)', 'images/cute.jpg', 'image', NULL, '2026-03-19 20:40:02', 1),
+(11, 'kotek :c', 'images/2.jpg', 'image', NULL, '2026-03-19 20:40:31', 1);
 
 -- --------------------------------------------------------
 
@@ -194,8 +204,7 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `role`, `created_at`) VA
 (4, 'test', '$2y$10$WuWrjX/i9YnAF7PB0Oyse.98Ldnf4mXBruFZ6vGUYnErQcKzh0hcu', 'user', '2026-03-15 00:23:48'),
 (5, 'testowe', '$2y$10$0oj0TdbWq5r8uoqYmr7X6.JT/DS/QEXtrO.MduCwnZszsM0Ay5X2i', 'user', '2026-03-16 09:06:22'),
 (6, 'test1', '$2y$10$CgvE6XWr1E954kvEgozodeNwyY2Sn2qoST9uc6LehS5j5JuKXHhe6', 'user', '2026-03-17 20:48:10'),
-(7, 'emi', '$2y$10$bdfzkgDVmc1KlCozq88S2eTQjqeqjnAp4.p3YsGhXeWiHmjzheL4C', 'user', '2026-03-19 18:47:53'),
-(8, 'emily', '$2y$10$wPWH.voN.ewokpATmxZvdOVPHteKF4Sm6rqwrHu60VR2cXkrdJ.Ri', 'user', '2026-03-22 16:28:15');
+(10, 'emily_cb97', '$2y$10$8TJjrZ1kF4WmfSEAsFunTO8m36A310c8M2TtvAHR5stJfju6pfbFG', 'user', '2026-03-23 23:43:05');
 
 --
 -- Indeksy dla zrzutów tabel
@@ -208,6 +217,13 @@ ALTER TABLE `comments`
   ADD PRIMARY KEY (`comment_id`),
   ADD KEY `post_id` (`post_id`),
   ADD KEY `user_id` (`user_id`);
+
+--
+-- Indeksy dla tabeli `comment_likes`
+--
+ALTER TABLE `comment_likes`
+  ADD PRIMARY KEY (`user_id`,`comment_id`),
+  ADD KEY `comment_id` (`comment_id`);
 
 --
 -- Indeksy dla tabeli `devlog_posts`
@@ -266,31 +282,31 @@ ALTER TABLE `comments`
 -- AUTO_INCREMENT for table `devlog_posts`
 --
 ALTER TABLE `devlog_posts`
-  MODIFY `devlog_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `devlog_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `forum_comments`
 --
 ALTER TABLE `forum_comments`
-  MODIFY `comment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `comment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `forum_posts`
 --
 ALTER TABLE `forum_posts`
-  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `gallery`
 --
 ALTER TABLE `gallery`
-  MODIFY `gallery_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `gallery_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
@@ -302,6 +318,13 @@ ALTER TABLE `users`
 ALTER TABLE `comments`
   ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `devlog_posts` (`devlog_id`),
   ADD CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `comment_likes`
+--
+ALTER TABLE `comment_likes`
+  ADD CONSTRAINT `comment_likes_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `comment_likes_ibfk_2` FOREIGN KEY (`comment_id`) REFERENCES `comments` (`comment_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `devlog_posts`

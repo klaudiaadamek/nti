@@ -1,58 +1,57 @@
 <?php
-declare(strict_types=1);
 session_start();
-
-header('Content-Type: application/json; charset=utf-8');
-
 require __DIR__ . '/../includes/db.php';
 
-function jsonOut(array $data, int $code = 200): void {
-  http_response_code($code);
-  echo json_encode($data, JSON_UNESCAPED_UNICODE);
-  exit;
+header('Content-Type: application/json');
+
+// POBIERANIE KOMENTARZY (GET)
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $postId = (int)($_GET['post_id'] ?? 0);
+    $userId = $_SESSION['user_id'] ?? 0;
+
+    if ($postId <= 0) {
+        echo json_encode(['error' => 'Brak ID posta']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("
+        SELECT c.comment_id, c.content, c.created_at, c.likes, u.username,
+               (SELECT COUNT(*) FROM comment_likes cl WHERE cl.comment_id = c.comment_id AND cl.user_id = ?) AS user_liked
+        FROM comments c
+        JOIN users u ON c.user_id = u.user_id
+        WHERE c.post_id = ?
+        ORDER BY c.created_at ASC
+    ");
+    $stmt->execute([$userId, $postId]);
+    $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode($comments);
+    exit;
 }
 
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+// DODAWANIE KOMENTARZA (POST)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['error' => 'Musisz być zalogowany, aby dodać komentarz.']);
+        exit;
+    }
 
-if ($method === 'GET') {
-  $postId = (int)($_GET['post_id'] ?? 0);
-  if ($postId <= 0) jsonOut(['ok' => false, 'error' => 'Brak post_id'], 400);
+    // Obsługa formatu JSON wysyłanego z nowego devlog.js
+    $data = json_decode(file_get_contents('php://input'), true);
+    $postId = (int)($data['post_id'] ?? $_POST['post_id'] ?? 0);
+    $content = trim($data['content'] ?? $_POST['content'] ?? '');
+    $userId = (int)$_SESSION['user_id'];
 
-  $stmt = $pdo->prepare("
-    SELECT c.comment_id, c.content, c.created_at, u.username, c.created_at, c.likes
-    FROM comments c
-    JOIN users u ON u.user_id = c.user_id
-    WHERE c.post_id = ?
-    ORDER BY c.created_at ASC, c.comment_id ASC
-  ");
-  $stmt->execute([$postId]);
+    if ($postId <= 0 || $content === '') {
+        echo json_encode(['error' => 'Treść komentarza nie może być pusta.']);
+        exit;
+    }
 
-  jsonOut(['ok' => true, 'comments' => $stmt->fetchAll()]);
-}
-
-if ($method === 'POST') {
-  if (empty($_SESSION['user_id'])) {
-    jsonOut(['ok' => false, 'error' => 'Musisz być zalogowana, aby dodać komentarz.'], 401);
-  }
-
-  $raw = file_get_contents('php://input');
-  $data = json_decode($raw, true);
-  if (!is_array($data)) $data = [];
-
-  $postId = (int)($data['post_id'] ?? 0);
-  $content = trim((string)($data['content'] ?? ''));
-
-  if ($postId <= 0) jsonOut(['ok' => false, 'error' => 'Brak post_id'], 400);
-  if ($content === '') jsonOut(['ok' => false, 'error' => 'Treść komentarza jest pusta.'], 400);
-
-  try {
     $stmt = $pdo->prepare("INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)");
-    $stmt->execute([$postId, (int)$_SESSION['user_id'], $content]);
-  } catch (Throwable $e) {
-    jsonOut(['ok' => false, 'error' => 'Błąd zapisu do bazy.'], 500);
-  }
-
-  jsonOut(['ok' => true]);
+    if ($stmt->execute([$postId, $userId, $content])) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Wystąpił błąd podczas zapisywania komentarza.']);
+    }
+    exit;
 }
-
-jsonOut(['ok' => false, 'error' => 'Method not allowed'], 405);

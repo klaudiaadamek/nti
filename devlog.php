@@ -1,147 +1,132 @@
 <?php
-  session_start();
-  $pageTitle = 'Devlog — Catnetic Storm';
-  $active = 'devlog';
+session_start();
+$pageTitle = 'Devlog — Catnetic Storm';
+$active = 'devlog';
 
-  require __DIR__ . '/includes/db.php';
+require __DIR__ . '/includes/db.php';
 
-  // pobierz posty devloga (najnowsze na górze)
-  $stmt = $pdo->query("
-    SELECT devlog_id, title, content, image_path, created_at
-    FROM devlog_posts
-    ORDER BY created_at DESC, devlog_id DESC
-  ");
-  $posts = $stmt->fetchAll();
+// Zmienione zapytanie - dodano LEFT JOIN by pobrać autora i zliczanie komentarzy!
+$stmt = $pdo->query("
+    SELECT p.devlog_id, p.title, p.content, p.media_path, p.media_type, p.created_at, u.username,
+           (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.devlog_id) AS comments_count
+    FROM devlog_posts p
+    LEFT JOIN users u ON u.user_id = p.author_id
+    ORDER BY p.created_at DESC, p.devlog_id DESC
+");
+$posts = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <?php include __DIR__ . '/includes/head.php'; ?>
+    <?php include __DIR__ . '/includes/head.php'; ?>
 </head>
 <body>
-  <?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/includes/header.php'; ?>
 
-  <main>
-    <!-- WIDOK 1: lista postów -->
+<main>
     <section id="devlog-list" class="devlog">
 
-      <?php if (!$posts): ?>
-        <article class="post-card" tabindex="0">
-          <div class="post-left">
-            <h2 class="post-title">BRAK POSTÓW</h2>
-            <p class="post-body">Dodaj pierwszy post do tabeli <strong>devlog_posts</strong>.</p>
-          </div>
-          <div class="post-right"></div>
-        </article>
-      <?php endif; ?>
+        <?php if (!$posts): ?>
+            <article class="post-card" tabindex="0">
+                <div class="post-left">
+                    <h2 class="post-title">BRAK POSTÓW</h2>
+                    <p class="post-body">Dodaj pierwszy post do tabeli <strong>devlog_posts</strong>.</p>
+                </div>
+                <div class="post-right"></div>
+            </article>
+        <?php endif; ?>
 
-      <?php foreach ($posts as $p): ?>
-        <?php
-          $id = (int)$p['devlog_id'];
-          $title = (string)$p['title'];
-          $body = (string)$p['content'];      // w DB może być z \n
-          $image = (string)$p['image_path'];  // np. images/1.jpg
-        ?>
-        <article class="post-card" tabindex="0"
-          data-post-id="<?= $id ?>"
-          data-title="<?= htmlspecialchars($title) ?>"
-          data-body="<?= htmlspecialchars($body) ?>"
-          data-image="<?= htmlspecialchars($image) ?>"
-        >
-          <div class="post-left">
-            <h2 class="post-title"><?= htmlspecialchars($title) ?></h2>
-            <p class="post-body">
-              <?= nl2br(htmlspecialchars($body)) ?>
-            </p>
-          </div>
+        <?php foreach ($posts as $p): ?>
+            <?php
+            $id = (int)$p['devlog_id'];
+            $title = (string)$p['title'];
+            $body = (string)$p['content'];
+            $media = (string)$p['media_path'];
+            $type = (string)$p['media_type'];
 
-          <div class="post-right">
-            <?php if (trim($image) !== ''): ?>
-<img
-  class="post-img"
-  src="<?= htmlspecialchars($image) ?>"
-  alt="<?= htmlspecialchars('Grafika do wpisu: ' . $title) ?>"
-  loading="lazy"
-/>
-            <?php endif; ?>
-          </div>
-        </article>
-      <?php endforeach; ?>
+            // Zabezpieczenie, jeśli post nie ma autora
+            $author = $p['username'] ? (string)$p['username'] : 'Admin';
+            $date = (string)$p['created_at'];
+            $comCount = (int)$p['comments_count'];
+
+            // Generowanie tekstu ze statystykami
+            $metaText = "Napisał(a): <strong>" . htmlspecialchars($author) . "</strong> • " . htmlspecialchars($date) . " • Komentarze: <strong>" . $comCount . "</strong>";
+            ?>
+            <article class="post-card devlog-item" tabindex="0"
+                     data-post-id="<?= $id ?>"
+                     data-title="<?= htmlspecialchars($title) ?>"
+                     data-body="<?= htmlspecialchars($body) ?>"
+                     data-media="<?= htmlspecialchars($media) ?>"
+                     data-type="<?= htmlspecialchars($type) ?>"
+                     data-meta="<?= htmlspecialchars($metaText) ?>"
+            >
+                <div class="post-left">
+                    <span class="forum-meta"><?= $metaText ?></span>
+                    <h2 class="post-title"><?= htmlspecialchars($title) ?></h2>
+                    <p class="post-body">
+                        <?= nl2br(htmlspecialchars($body)) ?>
+                    </p>
+                </div>
+
+                <div class="post-right">
+                    <?php if ($type === 'image' && trim($media) !== ''): ?>
+                        <img class="post-img media-trigger" data-type="image" data-src="<?= htmlspecialchars($media) ?>" src="<?= htmlspecialchars($media) ?>" alt="<?= htmlspecialchars('Grafika do wpisu: ' . $title) ?>" loading="lazy" style="cursor: zoom-in;" />
+                    <?php elseif ($type === 'video' && trim($media) !== ''): ?>
+                        <video class="forum-media-video media-trigger" data-type="video" data-src="<?= htmlspecialchars($media) ?>" loading="lazy" style="cursor: zoom-in;">
+                            <source src="<?= htmlspecialchars($media) ?>" type="video/mp4">
+                        </video>
+                    <?php endif; ?>
+                </div>
+            </article>
+        <?php endforeach; ?>
 
     </section>
 
-    <!-- WIDOK 2: szczegóły posta + komentarze -->
     <section id="devlog-post" class="devlog is-hidden" aria-label="Szczegóły posta">
-      <button class="back-btn" type="button" id="backToList"> ← WRÓĆ </button>
+        <button class="back-btn" type="button" id="backToList"> ← WRÓĆ </button>
 
-      <article class="post-card post-card--details">
-        <div class="post-left">
-          <h2 class="post-title" id="detailsTitle">NOWY POST</h2>
-          <p class="post-body" id="detailsBody">...</p>
-        </div>
+        <article class="post-card post-card--details">
+            <div class="post-left">
+                <span class="forum-meta" id="detailsMeta"></span>
+                <h2 class="post-title" id="detailsTitle">NOWY POST</h2>
+                <p class="post-body" id="detailsBody">...</p>
+            </div>
 
-        <div class="post-right">
-          <img class="post-img" id="detailsImg" src="" alt="Grafika do wpisu devloga" hidden />
-        </div>
-      </article>
+            <div class="post-right">
+                <img class="post-img media-trigger is-hidden" data-type="image" id="detailsImg" src="" alt="Grafika do wpisu devloga" style="cursor: zoom-in;" />
+                <video class="forum-media-video media-trigger is-hidden" data-type="video" id="detailsVideo" controls style="cursor: zoom-in;">
+                    <source src="" type="video/mp4">
+                </video>
+            </div>
+        </article>
 
-      <section class="comments">
-        <div class="comments-head">KOMENTARZE</div>
+        <section class="comments">
+            <div class="comments-head">KOMENTARZE</div>
 
-        <div class="comments-list" id="commentsList" aria-label="Lista komentarzy"></div>
+            <div class="comments-list" id="commentsList" aria-label="Lista komentarzy"></div>
 
-        <form class="comment-form" id="commentForm">
-          <input class="comment-input comment-input--wide" id="commentText" name="text" type="text" placeholder="DODAJ KOMENTARZ..." required />
-          <button class="comment-btn" type="submit">DODAJ</button>
-        </form>
-      </section>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <form class="comment-form" id="commentForm">
+                    <input class="comment-input comment-input--wide" id="commentText" name="text" type="text" placeholder="DODAJ KOMENTARZ..." required />
+                    <button class="comment-btn" type="submit">DODAJ</button>
+                </form>
+            <?php else: ?>
+                <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">Zaloguj się, aby dodać komentarz.</div>
+            <?php endif; ?>
+        </section>
     </section>
-  </main>
+</main>
 
-  <script src="/nti/js/devlog.js"></script>
-  <?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>
 
-  <div class="lightbox" id="devlog-lightbox">
-      <button class="lightbox-close" id="dlb-close">&times;</button>
-      <div class="lightbox-content">
-          <img class="lightbox-img" id="dlb-img" src="" alt="">
-      </div>
-  </div>
+<div class="lightbox" id="devlog-lightbox">
+    <button class="lightbox-close" id="dlb-close">&times;</button>
+    <div class="lightbox-content">
+        <img class="lightbox-img" id="dlb-img" src="" alt="" style="display: none;">
+        <video class="lightbox-img" id="dlb-video" controls style="display: none;"></video>
+    </div>
+</div>
 
-  <script>
-      document.addEventListener('DOMContentLoaded', () => {
-          const lightbox = document.getElementById('devlog-lightbox');
-          const lbImg = document.getElementById('dlb-img');
-          const btnClose = document.getElementById('dlb-close');
-
-          document.body.addEventListener('click', (e) => {
-              if (e.target.classList.contains('post-img')) {
-                  e.stopPropagation();
-
-                  lbImg.src = e.target.src;
-                  lbImg.alt = e.target.alt;
-                  lightbox.classList.add('active');
-              }
-          });
-
-          function closeLightbox() {
-              lightbox.classList.remove('active');
-          }
-
-          btnClose.addEventListener('click', closeLightbox);
-
-          lightbox.addEventListener('click', (e) => {
-              if (e.target === lightbox || e.target.classList.contains('lightbox-content')) {
-                  closeLightbox();
-              }
-          });
-
-          document.addEventListener('keydown', (e) => {
-              if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-                  closeLightbox();
-              }
-          });
-      });
-  </script>
+<script defer src="js/devlog.js"></script>
 </body>
 </html>
